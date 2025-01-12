@@ -2,7 +2,7 @@ import datetime as dt
 import json
 import os
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 import pandas as pd
 import requests
@@ -14,6 +14,7 @@ from src.logger import setting_logger
 logger = setting_logger("utils")
 
 file_xlsx = os.path.join(os.path.dirname(__file__), "..", "data", "operations.xlsx")
+file_json = os.path.join(os.path.dirname(__file__), "..", "data", "user_setting.json")
 
 
 def load_data_from_excel(file_xlsx: str) -> pd.DataFrame | None:
@@ -21,9 +22,12 @@ def load_data_from_excel(file_xlsx: str) -> pd.DataFrame | None:
     try:
         df = pd.read_excel(file_xlsx)
     except FileNotFoundError:
+        logger.warning("Файл не найден")
         return None
     except pd.errors.ParserError:
+        logger.warning("Ошибка чтения файла")
         return None
+    logger.info("Файл успешно открыт")
     return df
 
 
@@ -49,89 +53,125 @@ def get_top_transactions(transactions: pd.DataFrame) -> list[dict] | None:
     возвращает список словарей с ТОП-5 транзакций по сумме платежа."""
     logger.info("Функция начала свою работу.")
     try:
-        top_5_tr = transactions.nlargest(5, "Сумма операции")
-    except KeyError:
-        logger.warning("Неверный ключ")
-        return None
-    except TypeError:
-        logger.warning("Неверный тип данных")
-        return None
-    top_list = []
-    for _, transaction in top_5_tr.iterrows():
-        transaction_dict = {
-            "date": transaction.get("Дата операции")[:10],
-            "amount": transaction.get("Сумма операции"),
-            "category": transaction.get("Категория"),
-            "description": transaction.get("Описание"),
-        }
-    top_list.append(transaction_dict)
-    return top_list
+        df = pd.read_excel(file_xlsx)
+
+        required_columns = ["Дата платежа", "Сумма операции", "Категория", "Описание"]
+        if not all(col in df.columns for col in required_columns):
+            raise ValueError("Отсутствуют необходимые столбцы в данных")
+
+        transactions = df[required_columns].copy()
+        transactions["Сумма операции"] = transactions["Сумма операции"].astype(float)
+
+        top_5_transactions = transactions.nlargest(5, "Сумма операции")
+
+        result = [
+            {
+                "date": (
+                    row["Дата платежа"].strftime("%d.%m.%Y")
+                    if isinstance(row["Дата платежа"], pd.Timestamp)
+                    else str(row["Дата платежа"])
+                ),
+                "amount": round(row["Сумма операции"], 2),
+                "category": row["Категория"],
+                "description": row["Описание"],
+            }
+            for index, row in top_5_transactions.iterrows()
+        ]
+
+        return result
+
+    except Exception as e:
+        logger.info(f"Произошла ошибка: {e}")
+        return []
 
 
-def fetch_exchange_rates() -> list[dict[str, float]] | None:
-    """Функция возвращает курс валют в рублях,указанных в файле user_setting.json"""
-    logger.info("Функция начала свою работу.")
-    os.chdir("..")
+def load_json(file_json: str) -> dict[str, Any] | None:
+    if not os.path.exists(file_json):
+        logger.warning(f"Файл не найден: {file_json}")
+        return None
     try:
-        with open(
-            os.path.join(os.path.dirname(__file__), "..", "logs", "log_file.json"), "r", encoding="utf-8"
-        ) as file:
-            data = json.load(file)
+        with open(file_json, "r", encoding="utf-8") as file:
+            dat = json.load(file)
     except (json.JSONDecodeError, FileNotFoundError):
         logger.warning("Ошибка чтения json-файла")
         return None
+    return dat
 
-    load_dotenv(".env")
-    api_key = os.getenv("API_KEY_EXCHANGE_RATES")
+
+dat = load_json(file_json)
+
+
+load_dotenv(".env")
+
+
+def fetch_exchange_rates(dat: dict) -> dict[Any, Any] | list[Any]:
+    """Функция курса валют, формирует словари по ключу currency_rates"""
+    currencies = dat.get("user_currencies")
+    API_KEY = os.getenv("API_KEY")
+    if not API_KEY:
+        logger.error("API_KEY не найден в переменных окружения.")
+        return {}
+
+    want_rub = "RUB"
+    currency_rates = []
+
+    for currency in currencies:
+        api_url = f"https://v6.exchangerate-api.com/v6/{API_KEY}/pair/{currency}/{want_rub}"
+        try:
+            response = requests.get(api_url)
+            response.raise_for_status()
+            result = response.json()
+            logger.info(f"Ответ API: {result}")
+
+            if "conversion_rate" in result:
+                currency_rate = {"currency": currency, "rate": result["conversion_rate"]}
+                currency_rates.append(currency_rate)
+                logger.info(f"Курс конверсии {currency} в RUB: {result['conversion_rate']}")
+            else:
+                logger.warning(f"Ключ 'conversion_rate' отсутствует в ответе API для {currency}.")
+        except requests.exceptions.HTTPError as http_err:
+            logger.error(f"HTTP error occurred while converting {currency}: {http_err}")
+        except Exception as err:
+            logger.error(f"An error occurred while converting {currency}: {err}")
+
+    return currency_rates
+
+
+def get_stocks(dat: dict) -> list[dict] | None:
+    """Функция стоимости акций, формирует словари по ключу stock_prices"""
+    stocks = dat.get("user_stocks")
+    apikey = os.getenv("API_KEY_STOCK")
+    stocks_prices = []
+
+    if not stocks:
+        logger.warning("Нет акций для получения цен.")
+        return []
 
     try:
-        url = f"https://v6.exchangerate-api.com/v6/{api_key}/latest/RUB"
-        response = requests.get(url)
-        resp_data = response.json()
-    except requests.exceptions.RequestException:
-        logger.warning("Ошибка API запроса")
-        return None
-
-    data_list = [
-        {key: round(1 / value, 2)}
-        for key, value in resp_data.get("conversion_rates").items()
-        if key in data.get("user_currencies")
-    ]
-    logger.info("Функция успешно завершила свою работу.")
-    return data_list
-
-
-def fetch_stock_prices() -> list[dict[str, float]] | None:
-    """Функция  возвращает курс акций, указанных в файле user_setting.json"""
-    logger.info("Функция начала свою работу.")
-    os.chdir("..")
-    try:
-        with open(os.path.join(os.path.dirname(__file__), "..", "logs", "utils.log"), "r", encoding="utf-8") as file:
-            data = json.load(file)
-    except (json.JSONDecodeError, FileNotFoundError):
-        logger.warning("Ошибка чтения json-файла")
-        return None
-
-    load_dotenv(".env")
-    api_key = os.getenv("API_KEY_STOCK_PRICE")
-    data_list = []
-
-    try:
-        for stock in data.get("user_stocks"):
-            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={stock}&apikey={api_key}"
+        for stock in stocks:
+            url = f"https://financialmodelingprep.com/api/v3/quote/{stock}?apikey={apikey}"
             response = requests.get(url)
-            resp_data = response.json()
-            data_list.append({stock: float(resp_data.get("Global Quote").get("05. price"))})
-    except requests.exceptions.RequestException:
-        logger.warning("Ошибка API запроса")
+            response.raise_for_status()  # Выбрасывает исключение для плохих ответов
+            result = response.json()
+            logger.info(f"Ответ API: {result}")
+
+            if result:
+                stock_price = {"stock": stock, "price": result[0]["price"]}
+                stocks_prices.append(stock_price)
+            else:
+                logger.warning(f"Нет данных для акции: {stock}")
+
+        return stocks_prices
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ошибка API запроса: {e}")
         return None
+
     logger.info("Функция успешно завершила свою работу.")
-    return data_list
 
 
 def filter_transactions_by_card(df_transactions: pd.DataFrame) -> list[dict]:
     """Функция принимает DataFrame с транзакциями
-    и возврщает общую информацию по каждой карте"""
+    и возвращает общую информацию по каждой карте"""
     logger.info("Функция начала свою работу.")
     cards_dict = (
         df_transactions.loc[df_transactions["Сумма платежа"] < 0]
@@ -140,7 +180,6 @@ def filter_transactions_by_card(df_transactions: pd.DataFrame) -> list[dict]:
         .sum()
         .to_dict()
     )
-    logger.info("Функция начала свою работу.")
     expenses_cards = []
     for card, expenses in cards_dict.items():
         expenses_cards.append(
@@ -150,7 +189,7 @@ def filter_transactions_by_card(df_transactions: pd.DataFrame) -> list[dict]:
     return expenses_cards
 
 
-def filter_transactions_by_date(transactions: pd.DataFrame, end_date: Optional[str | pd.DataFrame]) -> DataFrame:
+def filter_transactions_by_date(transactions: pd.DataFrame, end_date: Optional[str]) -> str | None:
     """Функция, фильтрации транзакций по дате.Формат даты: %d.%m.%Y %H:%M:%S"""
     logger.info("Функция начала свою работу.")
     if end_date is None:

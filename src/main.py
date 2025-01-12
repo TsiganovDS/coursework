@@ -10,12 +10,14 @@ df_transactions = load_data_from_excel(file_xlsx)
 
 
 def main() -> None:
-    def action_1() -> None:
+    def action_1() -> Any:
         print(generator_json_data(df_transactions, "31.12.2021 23:59:59"))
-        return None
 
-    def action_2() -> None:
-        print(f"\n{sp}Выберите отчет :\n{sp}1. По переводам физ. лицам\n{sp}2. По переводам на мобильные номера")
+    def action_2() -> Any:
+        print(
+            f"\n{sp}Выберите сервис:\n{sp}1. Поиск переводов физическим лицам \n{sp}"
+            f"2. По переводам на мобильные номера"
+        )
         while True:
             user_input = input()
             if user_input == "1":
@@ -24,19 +26,14 @@ def main() -> None:
             elif user_input == "2":
                 print(transfers_to_phone(df_transactions))
                 break
-            else:
-                continue
 
-    def action_3() -> Any:
+    def action_3() -> None:
         while True:
             category = input("Введите категорию: ")
             if category in df_transactions["Категория"].values:
                 data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59").to_dict("records")
                 print(data_dict)
                 break
-            else:
-                print("Категория отсутствует в списке")
-                continue
 
     print("*" * 30 + " SKY BANK " + "*" * 30)
     print(" " * 9 + "Внимание!!! Для отчета используется дата: 31.12.2021")
