@@ -1,5 +1,6 @@
 import json
 import unittest
+from datetime import datetime
 from typing import Optional
 from unittest.mock import patch, MagicMock, mock_open, Mock
 import pandas as pd
@@ -12,21 +13,32 @@ from requests.cookies import MockResponse
 import src
 from src import utils
 from src.main import df_transactions
-from src.utils import load_data_from_excel, get_greeting, get_top_transactions, fetch_exchange_rates, dat, file_json, \
-    load_json, get_stocks, filter_transactions_by_card, filter_transactions_by_date
+from src.utils import (
+    load_data_from_excel,
+    get_greeting,
+    get_top_transactions,
+    fetch_exchange_rates,
+    dat,
+    file_json,
+    load_json,
+    get_stocks,
+    filter_transactions_by_card,
+    filter_transactions_by_date,
+)
+
 
 
 def test_load_data_from_excel():
     # Создаем DataFrame для имитации чтения из Excel
     mock_data = {
-        "Дата операции": ['31.12.2021 16:44:00'],
-        "Дата платежа": ['31.12.2021'],
-        "Номер карты": ['*7197'],
-        "Статус": 'Ok',
-        "Сумма операции": '-160.89',
-        "Валюта операции": 'RUB',
-        "Сумма платежа": '-160.89',
-        "Валюта платежа": 'RUB'
+        "Дата операции": ["31.12.2021 16:44:00"],
+        "Дата платежа": ["31.12.2021"],
+        "Номер карты": ["*7197"],
+        "Статус": "Ok",
+        "Сумма операции": "-160.89",
+        "Валюта операции": "RUB",
+        "Сумма платежа": "-160.89",
+        "Валюта платежа": "RUB",
     }
 
     df = pd.DataFrame(mock_data)
@@ -113,6 +125,7 @@ def test_load_json_success(mock_exists, mock_open_file):
     result = load_json("test.json")
     assert result == {"key": "value"}
 
+
 @patch("os.path.exists")
 @patch("builtins.open", new_callable=mock_open)
 def test_load_json_file_not_found(mock_open_file, mock_exists):
@@ -131,11 +144,9 @@ def test_fetch_exchange_rates_success(mock_get):
 
     dat = {"user_currencies": ["USD", "EUR"]}
     result = fetch_exchange_rates(dat)
-    expected = [
-        {"currency": "USD", "rate": 70.5},
-        {"currency": "EUR", "rate": 70.5}
-    ]
+    expected = [{"currency": "USD", "rate": 70.5}, {"currency": "EUR", "rate": 70.5}]
     assert result == expected
+
 
 @patch("src.main.requests.get")
 def test_fetch_exchange_rates_http_error(mock_get):
@@ -160,6 +171,7 @@ def test_get_stocks_success(mock_getenv, mock_requests):
 
     assert result == [{"stock": "AAPL", "price": 123.45}]
     mock_requests.assert_called_once_with("https://financialmodelingprep.com/api/v3/quote/AAPL?apikey=test_api_key")
+
 
 @patch("requests.get")
 @patch("os.getenv")
@@ -187,7 +199,6 @@ def test_filter_transactions_by_card():
     ]
 
 
-
 @pytest.fixture
 def dat1():
     transactions_data = {
@@ -200,18 +211,8 @@ def dat1():
     }
     return pd.DataFrame(transactions_data)
 
+
 def test_filter_transactions_by_date(dat1):
     end_date = "30.09.2023 23:59:59"
     result = filter_transactions_by_date(dat1, end_date)
     assert len(result) == 1
-
-
-
-
-
-
-
-
-
-
-

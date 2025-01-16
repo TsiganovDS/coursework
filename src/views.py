@@ -3,15 +3,22 @@ import json
 import pandas as pd
 
 from src.logger import setting_logger
-from src.utils import (dat, fetch_exchange_rates, filter_transactions_by_card, filter_transactions_by_date,
-                       get_greeting, get_stocks, get_top_transactions)
+from src.utils import (
+    dat,
+    fetch_exchange_rates,
+    filter_transactions_by_card,
+    filter_transactions_by_date,
+    get_greeting,
+    get_stocks,
+    get_top_transactions,
+)
 
 logger = setting_logger("views")
 
 
 def generator_json_data(df_transactions: pd.DataFrame, date_filter: str) -> str:
     """Функция формирует json ответ для главной страницы SkyBank"""
-    logger.info("Функция начала свою работу.")
+    logger.info("Функция generator_json_data начала свою работу.")
     greeting = get_greeting()
     filter_transactions_by_date_ = filter_transactions_by_date(df_transactions, date_filter)
     filter_transactions_by_card_ = filter_transactions_by_card(filter_transactions_by_date_)
@@ -30,5 +37,5 @@ def generator_json_data(df_transactions: pd.DataFrame, date_filter: str) -> str:
         indent=4,
         ensure_ascii=False,
     )
-    logger.info("Функция успешно завершила свою работу.")
+    logger.info("Функция generator_json_data успешно завершила свою работу.")
     return json_data
