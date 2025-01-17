@@ -1,0 +1,15 @@
+2025-01-17 19:01:50,958 - views - INFO - Функция generator_json_data начала свою работу.
+2025-01-17 19:01:59,547 - views - INFO - Функция generator_json_data успешно завершила свою работу.
+67 - utils - INFO - Файл успешно открыт
+2025-01-17 19:01:50,958 - utils - INFO - Функция get_greeting начала свою работу.
+2025-01-17 19:01:50,959 - utils - INFO - Функция get_greeting успешно завершила свою работу.
+2025-01-17 19:01:50,959 - utils - INFO - Функция filter_transactions_by_date начала свою работу.
+2025-01-17 19:01:51,016 - utils - INFO - Функция filter_transactions_by_date успешно завершила свою работу.
+2025-01-17 19:01:51,016 - utils - INFO - Функция filter_transactions_by_card начала свою работу.
+2025-01-17 19:01:51,035 - utils - INFO - Функция filter_transactions_by_card успешно завершила свою работу.
+2025-01-17 19:01:51,035 - utils - INFO - Функция get_top_transactions начала свою работу.
+2025-01-17 19:01:52,726 - utils - INFO - Функция get_top_transactions успешно завершила свою работу.
+2025-01-17 19:01:52,727 - utils - INFO - Функция fetch_exchange_rates начала свою работу
+2025-01-17 19:01:54,569 - utils - INFO - Функция fetch_exchange_rates успешно завершила свою работу.
+2025-01-17 19:01:54,570 - utils - INFO - Функция get_stocks начала свою работу
+2025-01-17 19:01:59,545 - utils - INFO - Функция get_stocks успешно завершила свою работу.
