@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import MagicMock, Mock, mock_open, patch
 
 import pandas as pd
@@ -6,95 +5,127 @@ import pytest
 import requests
 from freezegun import freeze_time
 
-from src.utils import (
-    fetch_exchange_rates,
-    filter_transactions_by_card,
-    filter_transactions_by_date,
-    get_greeting,
-    get_stocks,
-    get_top_transactions,
-    load_data_from_excel,
-    load_json,
+from src.utils import (fetch_exchange_rates, filter_transactions_by_card, filter_transactions_by_date, get_greeting,
+                       get_stocks, get_top_transactions, load_data_from_excel, load_json)
+
+
+@pytest.mark.parametrize(
+    "mock_data, expected_result",
+    [
+        (
+            {
+                "Дата операции": ["31.12.2021 16:44:00"],
+                "Дата платежа": ["31.12.2021"],
+                "Номер карты": ["*7197"],
+                "Статус": "Ok",
+                "Сумма операции": ["-160.89"],
+                "Валюта операции": ["RUB"],
+                "Сумма платежа": ["-160.89"],
+                "Валюта платежа": ["RUB"],
+            },
+            pd.DataFrame(
+                {
+                    "Дата операции": ["31.12.2021 16:44:00"],
+                    "Дата платежа": ["31.12.2021"],
+                    "Номер карты": ["*7197"],
+                    "Статус": "Ok",
+                    "Сумма операции": ["-160.89"],
+                    "Валюта операции": ["RUB"],
+                    "Сумма платежа": ["-160.89"],
+                    "Валюта платежа": ["RUB"],
+                }
+            ),
+        ),
+        (
+            {
+                "Дата операции": ["01.01.2022 12:00:00"],
+                "Дата платежа": ["01.01.2022"],
+                "Номер карты": ["*1234"],
+                "Статус": "Failed",
+                "Сумма операции": ["-50.00"],
+                "Валюта операции": ["USD"],
+                "Сумма платежа": ["-50.00"],
+                "Валюта платежа": ["USD"],
+            },
+            pd.DataFrame(
+                {
+                    "Дата операции": ["01.01.2022 12:00:00"],
+                    "Дата платежа": ["01.01.2022"],
+                    "Номер карты": ["*1234"],
+                    "Статус": "Failed",
+                    "Сумма операции": ["-50.00"],
+                    "Валюта операции": ["USD"],
+                    "Сумма платежа": ["-50.00"],
+                    "Валюта платежа": ["USD"],
+                }
+            ),
+        ),
+    ],
 )
-
-
-def test_load_data_from_excel():
-    # Создаем DataFrame для имитации чтения из Excel
-    mock_data = {
-        "Дата операции": ["31.12.2021 16:44:00"],
-        "Дата платежа": ["31.12.2021"],
-        "Номер карты": ["*7197"],
-        "Статус": "Ok",
-        "Сумма операции": "-160.89",
-        "Валюта операции": "RUB",
-        "Сумма платежа": "-160.89",
-        "Валюта платежа": "RUB",
-    }
-
+def test_load_data_from_excel(mock_data, expected_result):
     df = pd.DataFrame(mock_data)
+
     with patch("pandas.read_excel", return_value=df) as mock_read_excel:
         result = load_data_from_excel("mock_file.xlsx")
-        expected_result = df
         pd.testing.assert_frame_equal(result, expected_result)
         mock_read_excel.assert_called_once_with("mock_file.xlsx")
 
 
-def test_get_greeting():
-    @freeze_time("2024-01-01 07:00:00")
-    def test_greeting_morning() -> None:
-        assert get_greeting() == "Доброе утро"
+@pytest.mark.parametrize(
+    "frozen_time, expected_greeting",
+    [
+        ("2024-01-01 07:00:00", "Доброе утро"),
+        ("2024-01-01 13:00:00", "Добрый день"),
+        ("2024-01-01 19:00:00", "Добрый вечер"),
+        ("2024-01-01 00:00:00", "Доброй ночи"),
+    ],
+)
+def test_get_greeting(frozen_time, expected_greeting):
+    with freeze_time(frozen_time):
+        assert get_greeting() == expected_greeting
 
-    @freeze_time("2024-01-01 13:00:00")
-    def test_get_greeting_day() -> None:
-        assert get_greeting() == "Добрый день"
-
-    @freeze_time("2024-01-01 19:00:00")
-    def test_get_greeting_evening() -> None:
-        assert get_greeting() == "Добрый вечер"
-
-    @freeze_time("2024-01-01 00:00:00")
-    def test_get_greeting_night() -> None:
-        assert get_greeting() == "Доброй ночи"
-
-
-class TestGetTopTransactions(unittest.TestCase):
-
-    def __init__(self, methodName: str = "runTest"):
-        super().__init__(methodName)
-        self.return_value = None
-
+    @pytest.mark.parametrize(
+        "mock_data, expected_result",
+        [
+            (
+                {
+                    "Дата платежа": [
+                        pd.Timestamp("2023-01-01"),
+                        pd.Timestamp("2023-01-02"),
+                        pd.Timestamp("2023-01-03"),
+                        pd.Timestamp("2023-01-04"),
+                        pd.Timestamp("2023-01-05"),
+                        pd.Timestamp("2023-01-06"),
+                    ],
+                    "Сумма операции": [100.50, 200.75, 50.00, 300.00, 150.25, 400.00],
+                    "Категория": ["Food", "Transport", "Entertainment", "Food", "Transport", "Entertainment"],
+                    "Описание": ["Lunch", "Bus ticket", "Movie", "Dinner", "Taxi", "Concert"],
+                },
+                [
+                    {"date": "06.01.2023", "amount": 400.00, "category": "Entertainment", "description": "Concert"},
+                    {"date": "04.01.2023", "amount": 300.00, "category": "Food", "description": "Dinner"},
+                    {"date": "02.01.2023", "amount": 200.75, "category": "Transport", "description": "Bus ticket"},
+                    {"date": "05.01.2023", "amount": 150.25, "category": "Transport", "description": "Taxi"},
+                    {"date": "01.01.2023", "amount": 100.50, "category": "Food", "description": "Lunch"},
+                ],
+            ),
+            (
+                {
+                    "Дата платежа": [],
+                    "Сумма операции": [],
+                    "Категория": [],
+                    "Описание": [],
+                },
+            ),
+        ],
+    )
     @patch("src.utils.pd.read_excel")
-    def test_get_top_transactions_success(self, mock_read_excel):
-        # Создаем тестовый DataFrame
-        data = {
-            "Дата платежа": [
-                pd.Timestamp("2023-01-01"),
-                pd.Timestamp("2023-01-02"),
-                pd.Timestamp("2023-01-03"),
-                pd.Timestamp("2023-01-04"),
-                pd.Timestamp("2023-01-05"),
-                pd.Timestamp("2023-01-06"),
-            ],
-            "Сумма операции": [100.50, 200.75, 50.00, 300.00, 150.25, 400.00],
-            "Категория": ["Food", "Transport", "Entertainment", "Food", "Transport", "Entertainment"],
-            "Описание": ["Lunch", "Bus ticket", "Movie", "Dinner", "Taxi", "Concert"],
-        }
-        mock_df = pd.DataFrame(data)
+    def test_get_top_transactions(self, mock_read_excel, mock_data, expected_result):
+        mock_df = pd.DataFrame(mock_data)
         mock_read_excel.return_value = mock_df
 
-        # Вызов тестируемой функции
         result = get_top_transactions("dummy_path.xlsx")
-
-        # Проверка результата
-        expected_result = [
-            {"date": "06.01.2023", "amount": 400.00, "category": "Entertainment", "description": "Concert"},
-            {"date": "04.01.2023", "amount": 300.00, "category": "Food", "description": "Dinner"},
-            {"date": "02.01.2023", "amount": 200.75, "category": "Transport", "description": "Bus ticket"},
-            {"date": "05.01.2023", "amount": 150.25, "category": "Transport", "description": "Taxi"},
-            {"date": "01.01.2023", "amount": 100.50, "category": "Food", "description": "Lunch"},
-        ]
-
-        self.assertEqual(result, expected_result)
+        assert result == expected_result
 
     @patch("src.utils.pd.read_excel")
     def test_get_top_transactions_empty_data(self, mock_read_excel):
@@ -202,7 +233,16 @@ def dat1():
     return pd.DataFrame(transactions_data)
 
 
-def test_filter_transactions_by_date(dat1):
-    end_date = "30.09.2023 23:59:59"
+@pytest.mark.parametrize(
+    "end_date, expected_length",
+    [
+        ("30.09.2023 23:59:59", 2),  # Две транзакции до этой даты
+        ("01.09.2023 12:00:00", 1),  # Одна транзакция до этой даты
+        ("15.09.2023 12:00:00", 2),  # Две транзакции до этой даты
+        ("01.10.2023 12:00:00", 3),  # Все транзакции
+        ("31.08.2023 23:59:59", 0),  # Ни одной транзакции
+    ],
+)
+def test_filter_transactions_by_date(dat1, end_date, expected_length):
     result = filter_transactions_by_date(dat1, end_date)
-    assert len(result) == 1
+    assert len(result) == expected_length

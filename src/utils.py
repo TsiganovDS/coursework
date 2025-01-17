@@ -182,21 +182,11 @@ def filter_transactions_by_card(df_transactions: pd.DataFrame) -> list[dict]:
     return expenses_cards
 
 
-def filter_transactions_by_date(transactions: pd.DataFrame, end_date: Optional[str]) -> DataFrame:
+def filter_transactions_by_date(transactions_df: pd.DataFrame, end_date: Optional[str]) -> DataFrame:
     """Функция, фильтрации транзакций по дате.Формат даты: %d.%m.%Y %H:%M:%S"""
     logger.info("Функция filter_transactions_by_date начала свою работу.")
-    transactions = pd.DataFrame(transactions)
-    if not isinstance(transactions, pd.DataFrame):
-        raise ValueError("transactions должно быть экземпляром pd.DataFrame")
-    if end_date is None:
-        end_date = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-    start_date = datetime.strptime(end_date, "%d.%m.%Y %H:%M:%S").replace(day=1)
-    end_date = datetime.strptime(end_date, "%d.%m.%Y %H:%M:%S")
-    transactions["Дата операции"] = pd.to_datetime(transactions["Дата операции"], format="%d.%m.%Y %H:%M:%S")
-    filtered_transactions = transactions[
-        (transactions["Дата операции"] >= start_date) & (transactions["Дата операции"] <= end_date)
-    ]
-    pd.options.mode.chained_assignment = None
-    filtered_transactions["Дата операции"] = filtered_transactions["Дата операции"].dt.strftime("%d.%m.%Y %H:%M:%S")
+    transactions_df["Дата операции"] = pd.to_datetime(transactions_df["Дата операции"], format="%d.%m.%Y %H:%M:%S")
+    end_date = pd.to_datetime(end_date, format="%d.%m.%Y %H:%M:%S")
+    filtered_transactions = transactions_df[transactions_df["Дата операции"] <= end_date]
     logger.info("Функция filter_transactions_by_date успешно завершила свою работу.")
     return filtered_transactions

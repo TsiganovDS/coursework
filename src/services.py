@@ -22,9 +22,14 @@ def transfers_to_individuals(transactions: pd.DataFrame) -> str:
 def transfers_to_phone(transactions: pd.DataFrame) -> str:
     """Возвращает JSON со всеми транзакциями, содержащими в описании номера телефонов."""
     logger.info("Функция transfers_to_phone начала свою работу.")
-    phone_pattern = r"\+\d \d{3} \d{3}[- ]\d{2}[- ]\d{2}"
-    filtered_transactions = transactions[transactions["Описание"].str.contains(phone_pattern, regex=True)]
 
-    json_data = filtered_transactions.to_json(orient="records", force_ascii=False)
+    phone_pattern = r"\+\d \d{3} \d{3}[- ]\d{2}[- ]\d{2}"
+
+    transactions_dict = transactions.to_dict("records")
+
+    transfers = list(filter(lambda x: re.search(phone_pattern, x["Описание"]), transactions_dict))
+
+    json_data = json.dumps(transfers, ensure_ascii=False, indent=4)
+
     logger.info("Функция transfers_to_phone успешно завершила свою работу.")
     return json_data

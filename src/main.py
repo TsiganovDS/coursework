@@ -1,5 +1,5 @@
 from typing import Any
-import requests
+
 from src.reports import spending_by_category
 from src.services import transfers_to_individuals, transfers_to_phone
 from src.utils import file_xlsx, load_data_from_excel
@@ -16,18 +16,20 @@ def main() -> None:
     def action_2() -> Any:
         while True:
             user_input = input(
-                f"{sp}1.Поиск переводов физическим лицам \n{sp}2. По переводам на мобильные номера\n{sp}Номер : ")
+                f"{sp}1. Поиск переводов физическим лицам \n{sp}2. По переводам на мобильные номера\n{sp}Номер : "
+            )
             if user_input in ["1", "2"]:
-                print(transfers_to_individuals(df_transactions) if user_input == "1" else transfers_to_phone(
-                    df_transactions))
+                print(
+                    transfers_to_individuals(df_transactions)
+                    if user_input == "1"
+                    else transfers_to_phone(df_transactions)
+                )
                 break
-
-
 
     def action_3() -> None:
         user_input = input(
-            f"\n{sp}1.Супермаркеты \n{sp}2. Каршеринг \n{sp}3. Развлечения\n{sp}4.Фастфуд \n{sp}5. Связь \n{sp}"
-            f"6.Местный транспорт \n{sp}7.Косметика\n{sp}8.Сувениры\n{sp}9.Аптеки\n{sp}Выберите категорию: "
+            f"\n{sp}1. Супермаркеты \n{sp}2. Каршеринг \n{sp}3. Развлечения\n{sp}4. Фастфуд \n{sp}5. Связь \n{sp}"
+            f"6. Местный транспорт \n{sp}7. Косметика\n{sp}8. Сувениры\n{sp}9. Аптеки\n{sp}Выберите категорию: "
         )
 
         categories = {

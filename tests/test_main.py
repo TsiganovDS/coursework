@@ -1,7 +1,8 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from src.main import main
+from unittest.mock import patch
+
 import pandas as pd
+
+from src.main import main
 
 mock_df = pd.DataFrame(
     {

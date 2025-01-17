@@ -6,10 +6,9 @@ from unittest.mock import patch
 import pandas as pd
 
 from src.logger import setting_logger
+from src.utils import load_data_from_excel
 
 logger = setting_logger("test_file_operations")
-
-from src.utils import load_data_from_excel
 
 
 class TestFileOperations(unittest.TestCase):

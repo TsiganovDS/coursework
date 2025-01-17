@@ -1,11 +1,9 @@
 import json
-from datetime import datetime
 from unittest.mock import patch
 
 import pandas as pd
-import pytest
 
-from src.reports import spending_by_category, save_to_file_decorator
+from src.reports import save_to_file_decorator, spending_by_category
 
 
 def test_save_to_file_decorator(tmp_path):

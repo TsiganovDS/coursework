@@ -1,6 +1,5 @@
 import logging
 import os
-import unittest
 
 from src.logger import setting_logger
 
