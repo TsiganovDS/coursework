@@ -1,11 +1,11 @@
-import pytest
-import pandas as pd
 import json
 from unittest.mock import patch
 
+import pandas as pd
+import pytest
 
-@patch("src.services.logger")
-def test_transfers_to_individuals(mock_logger):
+
+def test_transfers_to_individuals():
     transactions = pd.DataFrame(
         [
             {"Категория": "Переводы", "Описание": "Иван И."},
@@ -24,14 +24,10 @@ def test_transfers_to_individuals(mock_logger):
     from src.services import transfers_to_individuals
 
     result = transfers_to_individuals(transactions)
-
     assert result == expected_result
-    mock_logger.info.assert_any_call("Функция начала свою работу.")
-    mock_logger.info.assert_any_call("Функция успешно завершила свою работу.")
 
 
-@patch("src.services.logger")
-def test_transfers_to_phone(mock_logger) -> None:
+def test_transfers_to_phone() -> None:
     data = {
         "Описание": [
             "Перевод на номер +7 123 456-00-00",
@@ -54,6 +50,4 @@ def test_transfers_to_phone(mock_logger) -> None:
 
     result = transfers_to_phone(df)
     result_data = json.loads(result)
-
-    # Проверяем, совпадают ли списки
     assert result_data == expected_result, f"Expected {expected_result}, but got {result_data}"

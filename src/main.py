@@ -9,22 +9,20 @@ sp = " " * 25
 df_transactions = load_data_from_excel(file_xlsx)
 
 
-def main():
+def main() -> None:
     def action_1() -> Any:
         print(generator_json_data(df_transactions, "31.12.2021 23:59:59"))
 
     def action_2() -> Any:
         while True:
             user_input = input(
-                f"{sp}1.Поиск переводов физическим лицам \n{sp}2. По переводам на мобильные номера\n{sp}Номер : "
-            )
+                f"{sp}1.Поиск переводов физическим лицам \n{sp}2. По переводам на мобильные номера\n{sp}Номер : ")
+            if user_input in ["1", "2"]:
+                print(transfers_to_individuals(df_transactions) if user_input == "1" else transfers_to_phone(
+                    df_transactions))
+                break
 
-            if user_input == "1":
-                print(transfers_to_individuals(df_transactions))
-                break
-            elif user_input == "2":
-                print(transfers_to_phone(df_transactions))
-                break
+
 
     def action_3() -> None:
         user_input = input(
@@ -32,56 +30,20 @@ def main():
             f"6.Местный транспорт \n{sp}7.Косметика\n{sp}8.Сувениры\n{sp}9.Аптеки\n{sp}Выберите категорию: "
         )
 
-        if user_input == "1":
-            category = "Супермаркеты"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
+        categories = {
+            "1": "Супермаркеты",
+            "2": "Каршеринг",
+            "3": "Развлечения",
+            "4": "Фастфуд",
+            "5": "Связь",
+            "6": "Местный транспорт",
+            "7": "Косметика",
+            "8": "Сувениры",
+            "9": "Аптеки",
+        }
 
-        elif user_input == "2":
-            category = "Каршеринг"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "3":
-            category = "Развлечения"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "4":
-            category = "Фастфуд"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "5":
-            category = "Связь"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "6":
-            category = "Местный транспорт"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "7":
-            category = "Косметика"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "8":
-            category = "Сувениры"
-            if category in df_transactions["Категория"].values:
-                data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
-                print(data_dict)
-
-        elif user_input == "9":
-            category = "Аптеки"
+        if user_input in categories:
+            category = categories[user_input]
             if category in df_transactions["Категория"].values:
                 data_dict = spending_by_category(df_transactions, category, "31.12.2021 23:59:59")
                 print(data_dict)

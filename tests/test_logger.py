@@ -1,16 +1,17 @@
 import logging
-
-import pytest
+import os
+import unittest
 
 from src.logger import setting_logger
 
-def test_setting_logger(caplog):
-    test_message = "Доброй ночи"
+file_l = os.path.join(os.path.dirname(__file__), "..", "logs", "logfile.log")
 
+
+def test_setting_logger(caplog):
+    test_message = "Здравствуйте"
     with caplog.at_level(logging.INFO):
         setting_logger(test_message)
 
-    # Проверяем, что логгер записал нужное сообщение
-    assert len(caplog.records) == 1  # Проверка, что записано одно сообщение
-    assert caplog.records[0].message == test_message  # Проверка содержимого сообщения
+    assert len(caplog.records) == 1
+    assert caplog.records[0].message == test_message
     assert caplog.records[0].levelname == "INFO"

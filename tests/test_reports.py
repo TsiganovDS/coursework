@@ -1,7 +1,40 @@
-import pytest
-import pandas as pd
+import json
 from datetime import datetime
-from src.reports import spending_by_category
+from unittest.mock import patch
+
+import pandas as pd
+import pytest
+
+from src.reports import spending_by_category, save_to_file_decorator
+
+
+def test_save_to_file_decorator(tmp_path):
+    # tmp_path — это временная директория, предоставляемая pytest
+    test_file = tmp_path / "test_log.json"
+    with patch("src.reports.logger") as mock_logger:
+
+        @save_to_file_decorator(test_file)
+        def test_function() -> pd.DataFrame:
+            data = {
+                "Дата операции": ["15.02.2023", "20.03.2023"],
+                "Сумма операции": [2000, 3000],
+            }
+            return pd.DataFrame(data)
+
+        result = test_function()
+        assert isinstance(result, pd.DataFrame)
+        assert test_file.exists()
+        with open(test_file, "r", encoding="utf-8") as file:
+            file_data = json.load(file)
+
+        expected_data = [
+            {"Дата операции": "15.02.2023", "Сумма операции": 2000},
+            {"Дата операции": "20.03.2023", "Сумма операции": 3000},
+        ]
+        assert file_data == expected_data
+
+        mock_logger.info.assert_any_call("Декоратор записывает полученный результат в файл.")
+        mock_logger.info.assert_any_call("Декоратор успешно завершил свою работу.")
 
 
 def test_spending_by_category():

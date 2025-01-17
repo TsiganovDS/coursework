@@ -1,31 +1,21 @@
-import json
 import unittest
-from datetime import datetime
-from typing import Optional
-from unittest.mock import patch, MagicMock, mock_open, Mock
+from unittest.mock import MagicMock, Mock, mock_open, patch
+
 import pandas as pd
 import pytest
 import requests
-
 from freezegun import freeze_time
-from requests.cookies import MockResponse
 
-import src
-from src import utils
-from src.main import df_transactions
 from src.utils import (
-    load_data_from_excel,
-    get_greeting,
-    get_top_transactions,
     fetch_exchange_rates,
-    dat,
-    file_json,
-    load_json,
-    get_stocks,
     filter_transactions_by_card,
     filter_transactions_by_date,
+    get_greeting,
+    get_stocks,
+    get_top_transactions,
+    load_data_from_excel,
+    load_json,
 )
-
 
 
 def test_load_data_from_excel():

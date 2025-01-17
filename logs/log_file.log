@@ -1,0 +1,40 @@
+2025-01-17 15:04:15,402 - name - INFO - Здравствуйте
+2025-01-17 15:04:15,833 - name - INFO - Функция transfers_to_individuals начала свою работу.
+2025-01-17 15:04:15,835 - name - INFO - Функция transfers_to_individuals успешно завершила свою работу.
+2025-01-17 15:04:15,839 - name - INFO - Функция transfers_to_phone начала свою работу.
+2025-01-17 15:04:15,849 - name - INFO - Функция transfers_to_phone успешно завершила свою работу.
+2025-01-17 15:04:15,855 - name - INFO - Файл успешно открыт
+2025-01-17 15:04:15,871 - name - INFO - Функция get_top_transactions начала свою работу.
+2025-01-17 15:04:15,879 - name - INFO - Функция get_top_transactions успешно завершила свою работу.
+2025-01-17 15:04:15,886 - name - INFO - Функция get_top_transactions начала свою работу.
+2025-01-17 15:04:15,898 - name - INFO - Функция get_top_transactions успешно завершила свою работу.
+2025-01-17 15:04:15,904 - name - INFO - Функция load_json начала свою работу
+2025-01-17 15:04:15,905 - name - INFO - Функция load_json успешно завершила свою работу.
+2025-01-17 15:04:15,912 - name - INFO - Функция load_json начала свою работу
+2025-01-17 15:04:15,913 - name - WARNING - Файл не найден: nonexistent.json
+2025-01-17 15:04:15,917 - name - INFO - Функция fetch_exchange_rates начала свою работу
+2025-01-17 15:04:15,917 - name - INFO - Функция fetch_exchange_rates успешно завершила свою работу.
+2025-01-17 15:04:15,923 - name - INFO - Функция fetch_exchange_rates начала свою работу
+2025-01-17 15:04:15,924 - name - INFO - Функция fetch_exchange_rates успешно завершила свою работу.
+2025-01-17 15:04:15,928 - name - INFO - Функция get_stocks начала свою работу
+2025-01-17 15:04:15,929 - name - INFO - Функция get_stocks успешно завершила свою работу.
+2025-01-17 15:04:15,932 - name - INFO - Функция get_stocks начала свою работу
+2025-01-17 15:04:15,933 - name - WARNING - Нет акций для получения цен.
+2025-01-17 15:04:15,936 - name - INFO - Функция filter_transactions_by_card начала свою работу.
+2025-01-17 15:04:15,946 - name - INFO - Функция filter_transactions_by_card успешно завершила свою работу.
+2025-01-17 15:04:15,950 - name - INFO - Функция filter_transactions_by_date начала свою работу.
+2025-01-17 15:04:15,956 - name - INFO - Функция filter_transactions_by_date успешно завершила свою работу.
+2025-01-17 15:04:15,962 - name - INFO - Функция generator_json_data начала свою работу.
+2025-01-17 15:04:15,963 - name - INFO - Функция generator_json_data успешно завершила свою работу.
+2025-01-17 15:04:15,967 - name - INFO - Функция generator_json_data начала свою работу.
+2025-01-17 15:04:15,967 - name - INFO - Функция get_greeting начала свою работу.
+2025-01-17 15:04:15,967 - name - INFO - Функция get_greeting успешно завершила свою работу.
+2025-01-17 15:04:15,968 - name - INFO - Функция filter_transactions_by_date начала свою работу.
+у.
+2025-01-17 15:04:15,968 - name - INFO - Функция filter_transactions_by_date начала свою работу.
+ions_by_date начала свою работу.
+ons_by_date начала свою работу.
+ свою работу.
+2025-01-17 15:04:15,967 - name - INFO - Функция get_greeting успешно завершила свою работу.
+2025-01-17 15:04:15,968 - name - INFO - Функция filter_transactions_by_date начала свою работу.
+ter_transactions_by_date начала свою работу.

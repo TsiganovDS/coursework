@@ -1,6 +1,5 @@
 import datetime as dt
 import json
-import logging
 import os
 from datetime import datetime
 from typing import Any, Optional
@@ -22,15 +21,15 @@ file_json = os.path.join(os.path.dirname(__file__), "..", "data", "user_setting.
 
 def load_data_from_excel(file_xlsx: str) -> pd.DataFrame | None:
     """Функция преобразования Excel-файла в DataFrame"""
-    logger.info("Функция load_data_from_excel начала свою работу")
     try:
         df = pd.read_excel(file_xlsx)
     except FileNotFoundError:
-        logger.warning("Файл не найден")
-        return None
+        logger.warning(f"Файл не найден: {file_xlsx}")
+        raise
     except pd.errors.ParserError:
         logger.warning("Ошибка чтения файла")
-        return None
+        raise
+
     logger.info("Файл успешно открыт")
     return df
 
@@ -157,8 +156,6 @@ def get_stocks(dat: dict) -> list[dict] | None:
     except requests.exceptions.RequestException as e:
         logger.error(f"Ошибка API запроса: {e}")
         return None
-
-
 
 
 def filter_transactions_by_card(df_transactions: pd.DataFrame) -> list[dict]:
