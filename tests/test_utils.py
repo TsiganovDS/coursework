@@ -5,8 +5,16 @@ import pytest
 import requests
 from freezegun import freeze_time
 
-from src.utils import (fetch_exchange_rates, filter_transactions_by_card, filter_transactions_by_date, get_greeting,
-                       get_stocks, get_top_transactions, load_data_from_excel, load_json)
+from src.utils import (
+    fetch_exchange_rates,
+    filter_transactions_by_card,
+    filter_transactions_by_date,
+    get_greeting,
+    get_stocks,
+    get_top_transactions,
+    load_data_from_excel,
+    load_json,
+)
 
 
 @pytest.mark.parametrize(
