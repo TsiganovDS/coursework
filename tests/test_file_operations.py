@@ -22,7 +22,7 @@ class TestFileOperations(unittest.TestCase):
         mock_logger.warning.assert_called_once_with(f"Файл не найден: {file_xls}")
 
     @patch("src.utils.logger")
-    @patch("pandas.read_excel", side_effect=pd.errors.ParserError)  # Симулируем ParserError
+    @patch("pandas.read_excel", side_effect=pd.errors.ParserError)
     def test_parser_error(self, mock_read_excel, mock_logger):
         file_xls = os.path.join(os.path.dirname(__file__), "..", "data", "some_file.xlsx")
 

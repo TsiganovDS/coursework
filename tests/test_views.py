@@ -64,14 +64,14 @@ transactions = pd.DataFrame(
 def test_views(
     mock_views_get_greeting: unittest.mock.Mock,
     mock_views_filter_transactions_by_card: unittest.mock.Mock,
-    mock_views_top_five_transactions: unittest.mock.Mock,
+    mock_views_top_transactions: unittest.mock.Mock,
     mock_stocks: unittest.mock.Mock,
     mock_views_exchange_rates: unittest.mock.Mock,
     mock_views_get_stocks: unittest.mock.Mock,
 ) -> None:
     mock_views_get_greeting.return_value = "Доброе утро!"
     mock_views_filter_transactions_by_card.return_value = {"cards_info": 1234}
-    mock_views_top_five_transactions.return_value = {"transactions": 1234}
+    mock_views_top_transactions.return_value = {"transactions": 1234}
     mock_stocks.return_value = ["USD", "EUR"]
     mock_views_exchange_rates.return_value = {"USD": 90}
     mock_views_get_stocks.return_value = {"APPL": 1500}
