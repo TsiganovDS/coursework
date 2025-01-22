@@ -28,10 +28,15 @@ def transfers_to_phone(transactions: pd.DataFrame) -> str:
     try:
         """Возвращает JSON со всеми транзакциями, содержащими в описании номера телефонов."""
         logger.info("Функция начала свою работу.")
+
         phone_pattern = r"\+\d \d{3} \d{3}[- ]\d{2}[- ]\d{2}"
+
         transactions_dict = transactions.to_dict("records")
+
         transfers = list(filter(lambda x: re.search(phone_pattern, x["Описание"]), transactions_dict))
+
         json_data = json.dumps(transfers, ensure_ascii=False, indent=4)
+
         logger.info("Функция успешно завершила свою работу.")
         return json_data
 

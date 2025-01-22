@@ -3,15 +3,8 @@ import json
 import pandas as pd
 
 from src.logger import setting_logger
-from src.utils import (
-    dat,
-    fetch_exchange_rates,
-    filter_transactions_by_card,
-    filter_transactions_by_date,
-    get_greeting,
-    get_stocks,
-    get_top_transactions,
-)
+from src.utils import (dat, fetch_exchange_rates, filter_transactions_by_card, filter_transactions_by_date,
+                       get_greeting, get_stocks, get_top_transactions)
 
 logger = setting_logger("views")
 
