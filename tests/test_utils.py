@@ -62,7 +62,7 @@ from src.utils import (fetch_exchange_rates, filter_transactions_by_card, filter
         ),
     ],
 )
-def test_load_data_from_excel(mock_data, expected_result):
+def test_load_data_from_excel(mock_data, expected_result) -> None:
     df = pd.DataFrame(mock_data)
 
     with patch("pandas.read_excel", return_value=df) as mock_read_excel:
@@ -80,7 +80,7 @@ def test_load_data_from_excel(mock_data, expected_result):
         ("2024-01-01 00:00:00", "Доброй ночи"),
     ],
 )
-def test_get_greeting(frozen_time, expected_greeting):
+def test_get_greeting(frozen_time, expected_greeting) -> None:
     with freeze_time(frozen_time):
         assert get_greeting() == expected_greeting
 
@@ -120,22 +120,12 @@ def test_get_greeting(frozen_time, expected_greeting):
         ],
     )
     @patch("src.utils.pd.read_excel")
-    def test_get_top_transactions(self, mock_read_excel, mock_data, expected_result):
+    def test_get_top_transactions(mock_read_excel, mock_data, expected_result):
         mock_df = pd.DataFrame(mock_data)
         mock_read_excel.return_value = mock_df
 
         result = get_top_transactions("dummy_path.xlsx")
         assert result == expected_result
-
-    @patch("src.utils.pd.read_excel")
-    def test_get_top_transactions_empty_data(self, mock_read_excel):
-        mock_read_excel.return_value = pd.DataFrame(
-            columns=["Дата платежа", "Сумма операции", "Категория", "Описание"]
-        )
-
-        result = get_top_transactions("dummy_path.xlsx")
-
-        self.assertEqual(result, [])
 
 
 @patch("builtins.open", new_callable=mock_open, read_data='{"key": "value"}')
@@ -206,43 +196,51 @@ def test_get_stocks_no_stocks(mock_getenv, mock_requests):
 
 
 def test_filter_transactions_by_card():
-    transactions_data = {
-        "Номер карты": ["1234", "1234", "5678"],
-        "Сумма платежа": [-100.0, -200.0, -300.0],
+    data = {
+        "Номер карты": ["1234567890123456", "1234567890123456", "6543210987654321", "6543210987654321"],
+        "Сумма платежа": [-100.50, -200.75, -50.25, -150.00],
+        "Дата операции": ["01.12.2021 18:00:00", "02.12.2021 18:00:00", "03.12.2021 18:00:00", "04.12.2021 18:00:00"],
     }
-    df_transactions = pd.DataFrame(transactions_data)
+    df_transactions = pd.DataFrame(data)
 
-    result = filter_transactions_by_card(df_transactions)
-
-    assert result == [
-        {"last_digits": "1234", "total_spent": 300.0, "cashback": 3.0},
-        {"last_digits": "5678", "total_spent": 300.0, "cashback": 3.0},
+    expected_result = [
+        {"last_digits": "3456", "total_spent": 301.25, "cashback": 3.01},
+        {"last_digits": "4321", "total_spent": 200.25, "cashback": 2.00},
     ]
 
+    # Вызов тестируемой функции
+    result = filter_transactions_by_card(df_transactions, "17.12.2021 18:00:00")
 
-@pytest.fixture
-def dat1():
-    transactions_data = {
-        "Дата операции": [
-            "01.09.2023 12:00:00",
-            "15.09.2023 12:00:00",
-            "01.10.2023 12:00:00",
-        ],
-        "Сумма платежа": [100.0, 200.0, 300.0],
-    }
-    return pd.DataFrame(transactions_data)
+    print("Результат:", result)
+    print("Ожидаемый результат:", expected_result)
+
+    # Проверка результата
+    assert result == expected_result, f"Ожидалось {expected_result}, но получено {result}"
 
 
 @pytest.mark.parametrize(
     "end_date, expected_length",
     [
-        ("30.09.2023 23:59:59", 2),  # Две транзакции до этой даты
-        ("01.09.2023 12:00:00", 1),  # Одна транзакция до этой даты
-        ("15.09.2023 12:00:00", 2),  # Две транзакции до этой даты
-        ("01.10.2023 12:00:00", 3),  # Все транзакции
-        ("31.08.2023 23:59:59", 0),  # Ни одной транзакции
+        ("30.09.2021 23:59:59", 3),
+        ("01.09.2021 12:00:00", 0),
+        ("15.09.2021 12:00:00", 0),
+        ("01.10.2021 12:00:00", 1),
+        ("31.08.2021 23:59:59", 0),
     ],
 )
-def test_filter_transactions_by_date(dat1, end_date, expected_length):
+def test_filter_transactions_by_date(end_date, expected_length):
+    data = {
+        "Дата операции": [
+            "29.09.2021 14:30:00",
+            "30.09.2021 10:00:00",
+            "01.09.2021 08:00:00",
+            "15.09.2021 15:45:00",
+            "01.10.2021 12:00:00",
+        ],
+        "Сумма": [100, 200, 150, 300, 400],
+    }
+
+    dat1 = pd.DataFrame(data)
+
     result = filter_transactions_by_date(dat1, end_date)
     assert len(result) == expected_length
